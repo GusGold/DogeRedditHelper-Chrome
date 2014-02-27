@@ -1,0 +1,85 @@
+#gusgold-dogecoin-warning{
+	display: none;
+	background-color: red;
+	text-align: center;
+	font-size: 20px;
+	padding: 20px 40px;
+}
+
+.gusgold-dogecoin-moderator,
+.gusgold-dogecoin-blacklist,
+.gusgold-dogecoin-creator{
+	border-radius: 5px;
+	padding: 1px 4px;
+	color: white !important;
+	position: relative;
+}
+
+.gusgold-dogecoin-moderator{
+	background-color: green;
+}
+
+.gusgold-dogecoin-blacklist{
+	background-color: red; 
+	display: inline-block;
+}
+
+.gusgold-dogecoin-creator{
+	background-color: orange;
+}
+
+.gusgold-dogecoin-moderator-popup,
+.gusgold-dogecoin-blacklist-popup,
+.gusgold-dogecoin-creator-popup{
+	display: none;
+	position: absolute;
+	left: 50%;
+	-webkit-transform: translate(-50%, -100%);
+	border-radius: 5px;
+	padding: 1px 4px;
+	text-align: center;
+	top: 0.3em;
+}
+
+.gusgold-dogecoin-moderator:hover .gusgold-dogecoin-moderator-popup,
+.gusgold-dogecoin-blacklist:hover .gusgold-dogecoin-blacklist-popup,
+.gusgold-dogecoin-creator:hover .gusgold-dogecoin-creator-popup{
+	display: block;
+}
+
+.gusgold-dogecoin-moderator-popup{
+	background-color: green;
+	width: 17em;
+}
+
+.gusgold-dogecoin-blacklist-popup{
+	background-color: red;
+	width: 13.5em;
+}
+
+.gusgold-dogecoin-creator-popup{
+	background-color: orange;
+	width: 18em;
+}
+
+.md,
+.entry,
+.link.thing,
+.thing.comment {
+	overflow: visible !important;
+}
+
+.gusgold-dogecoin-moderator_message-popup,
+.gusgold-dogecoin-blacklist_message-popup,
+.gusgold-dogecoin-creator_message-popup {
+	left: 0;
+	-webkit-transform: translate(0, -100%);
+}
+
+.gusgold-dogecoin-moderator_message-popup {
+	width: 9em;
+}
+
+.gusgold-dogecoin-blacklist_message-popup {
+	width: 16em;
+}
