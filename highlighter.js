@@ -1,74 +1,45 @@
-$("body").prepend($(
-	"<div/>", {
-		id: "gusgold-dogecoin-warning"
-	}));
+//Finds and marks Authors for highlighting
+function highlightAuthors(){
+    $(".content .author").each(function(){
+    	if ($(this).attr("data-ggdc-found") !== "1"){
+	        var text = $(this).text();
+	        if(~$.inArray(text, data.mods.entries)){
+	            $(this).addClass("ggdc-moderator");
+	            $(this).attr("data-ggdc-moderator-reddit", escapeQuotes(text));
+	        } else if(text == data.creators.entries){
+	            $(this).addClass("ggdc-creators");
+	            $(this).attr("data-ggdc-creator-reddit", escapeQuotes(text));
+	        } else if($.grep(data.blacklist.entries, function(entry){return(entry.reddit.toLowerCase() === text.toLowerCase());}).length){
+	            $(this).addClass("ggdc-blacklist");
+	            $(this).attr("data-ggdc-blacklist-reddit", escapeQuotes(text));
+	        } else {
+	        	$(this).attr("data-ggdc-user-reddit", escapeQuotes(text));
+	        }
+	        $(this).addClass("ggdc-info");
+	        $(this).append($("<span/>", {
+	                "class": "ggdc-popup",
+	                "html": "More info"
+	            }));
+	    }
+        
+    });
+    addOnClick();
+}
 
-var data = {
-	"creator":{
-		"reddit": ""},
-	"mods": [],
-	"blacklist":{
-		"reddit": []
-	}
-};
 
-errors = [];
+function highlighter_js(){
+    /******
+     Setup
+    ******/
 
-chrome.runtime.sendMessage({get: "creator"}, function(response) {
+    //Rescans page for new information (User Activated)
+    $(".ggdc-bar-rescan").click(function(event){
+        highlightAuthors();
+    });
 
-	data.creator.reddit = response.reddit;
+    /*****
+     Main
+    *****/
 
-	chrome.runtime.sendMessage({get: "mods"}, function(response) {
-
-		if(response.populated){
-			data.mods.mods = response.mods;
-		} else {
-			errors.push("could not get list of moderators");
-		}
-
-		chrome.runtime.sendMessage({get: "blacklist"}, function(response) {
-			
-			if(response.populated){
-				data.blacklist.reddit = response.reddit;
-			} else {
-				errors.push("could not get blacklist information");
-			}
-
-			showLoadErrors();
-
-			$(".author").each(function(){
-				if($.inArray($(this).text(), data.mods.mods) != -1){
-					$(this).addClass("gusgold-dogecoin-moderator");
-					$(this).append($("<span/>", {
-						"class": "gusgold-dogecoin-moderator-popup",
-						"html": "This user is a current moderator"
-					}));
-				} else if($(this).text() == data.creator.reddit){
-					$(this).addClass("gusgold-dogecoin-creator");
-					$(this).append($("<span/>", {
-						"class": "gusgold-dogecoin-creator-popup",
-						"html": "This user created Dogecoin Helper!"
-					}));
-				} else if($.inArray($(this).text(), data.blacklist.reddit) != -1){
-					$(this).addClass("gusgold-dogecoin-blacklist");
-					$(this).append($("<span/>", {
-						"class": "gusgold-dogecoin-blacklist-popup",
-						"html": "This user is on the blacklist<br/>Trade with extreme caution"
-					}));
-				}
-			});
-		});
-	});
-});
-
-function showLoadErrors(){
-	if(errors.length){
-		$("#gusgold-dogecoin-warning").html("Dogemarket Helper ");
-		if(errors.length === 1){
-			$("#gusgold-dogecoin-warning").html("Dogemarket Helper " + errors[0] + ". <br/> Please reload page.");
-		} else {
-			$("#gusgold-dogecoin-warning").html("Unable to get all necessary data. Dogemarket Helper " + errors.join(" and ") + ". <br/> Please reload page.");
-		}
-		$("#gusgold-dogecoin-warning").css("display", "block");
-	}
+    highlightAuthors();
 }

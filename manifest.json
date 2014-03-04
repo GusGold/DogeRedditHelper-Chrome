@@ -1,50 +1,53 @@
 {
-	"name": "DogeCoin Reddit Helper",
-	"description": "A helper for Shibes wanting to make DogeCoin Transactions on /r/DogeMarket",
-	"version": "0.1.1",
-	"manifest_version": 2,
-	"icons": {
-		"16": "icon.16.png",
-		"48": "icon.48.png",
-		"128": "icon.128.png"
-	},
-	"permissions": [
-		"*://*.reddit.com/*",
-		"*://docs.google.com/"],
-	"background": {
-		"scripts": [
-			"jquery-2.1.0.min.js",
-			"jquery.csv-0.71.js",
-			"background.js"]
-	},
-	"content_scripts": 
-	[
-		{
-			"matches": ["*://*.reddit.com/r/dogemarket/*"],
-			"exclude_matches": ["*://*/r/dogemarket/comments/*"],
-			"js": [
-				"jquery-2.1.0.min.js",
-				"highlighter.js",
-				"dogemarket.js"],
-			"css": ["style.css"],
-			"run_at": "document_end"
-		},
-		{
-			"matches": ["*://*.reddit.com/r/dogemarket/comments/*"],
-			"js": [
-				"jquery-2.1.0.min.js",
-				"highlighter.js",
-				"comments.js"],
-			"run_at": "document_end"
-		},
-		{
-			"matches": ["*://*.reddit.com/message/*"],
-			"js": [
-				"jquery-2.1.0.min.js",
-				"highlighter_message.js",
-				"messages.js"],
-			"css": ["style.css"],
-			"run_at": "document_end"
-		}
-	]
+    "name": "DogeCoin Reddit Helper",
+    "description": "A helper for Shibes wanting to make DogeCoin Transactions on /r/DogeMarket",
+    "version": "0.2",
+    "manifest_version": 2,
+    "icons": {
+        "16": "icon.16.png",
+        "48": "icon.48.png",
+        "128": "icon.128.png"
+    },
+    "permissions": [
+        "*://*.reddit.com/*",
+        "*://docs.google.com/"],
+    "background": {
+        "scripts": [
+            "jquery-2.1.0.min.js",
+            "jquery.csv-0.71.js",
+            "background.js"]
+    },
+    "content_scripts": 
+    [
+        {
+            "matches": ["*://*.reddit.com/r/dogemarket/*"],
+            "exclude_matches": ["*://*/r/dogemarket/comments/*"],
+            "js": [
+                "jquery-2.1.0.min.js",
+                "highlighter.js",
+                "setup.js",
+                "dogemarket.js"],
+            "css": ["style.css"],
+            "run_at": "document_end"
+        },
+        {
+            "matches": ["*://*.reddit.com/r/dogemarket/comments/*"],
+            "js": [
+                "jquery-2.1.0.min.js",
+                "highlighter.js",
+                "comments.js",
+                "setup.js"],
+            "run_at": "document_end"
+        },
+        {
+            "matches": ["*://*.reddit.com/message/*"],
+            "js": [
+                "jquery-2.1.0.min.js",
+                "highlighter.js",
+                "messages.js",
+				"setup.js"],
+            "css": ["style.css"],
+            "run_at": "document_end"
+        }
+    ]
 }
