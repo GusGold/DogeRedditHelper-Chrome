@@ -39,9 +39,9 @@ function fixSpacerHeight(){
 function showErrors(){
     if(errors.length){
         if(errors.length === 1){
-            $("#ggdc-bar-content").html("Unable to get all necessary data. Dogemarket Helper " + errors[0] + ". <br/> Please reload the page.");
+            $("#ggdc-bar-content").html("Unable to get all necessary data. Dogemarket Helper " + errors[0] + ". <br/> Please reload the page. If this continues to show, an error has occured while trying to get this information. Please restart the extension to fix.");
         } else {
-            $("#ggdc-bar-content").html("Unable to get all necessary data. Dogemarket Helper " + errors.join(" and ") + ". <br/> Please reload the page.");
+            $("#ggdc-bar-content").html("Unable to get all necessary data. Dogemarket Helper " + errors.join(" and ") + ". <br/> Please reload the page. If this continues to show, an error has occured while trying to get this information. Please restart the extension to fix.");
         }
         $("#ggdc-bar-content").attr("class", "ggdc-bar-content-warning");
         $("#ggdc-bar").toggleClass("ggdc-bar-open");
@@ -163,7 +163,7 @@ $("body").prepend('\
     </div>\
     <div id="ggdc-bar">\
         <div id="ggdc-bar-head">\
-            <span class="ggdc-bar-tips">Tips? D5hUdmJCGVpLxZgVBwqvKY5UFr51bFRZ9y</span>\
+            <span class="ggdc-bar-tips">Tips?</span>\
             <span class="ggdc-bar-toggle">Show/Hide</span>\
             <span class="ggdc-bar-rescan"><abbr title="Useful if you loaded more content (like RES\'s \'Never Ending Reddit\')"">Rescan Page</abbr></span>\
             <span class="ggdc-bar-head-title"><a href="http://www.reddit.com/r/dogemarket">/r/DogeMarket</a> Helper! By <a href="http://www.reddit.com/user/GusGold/">/u/GusGold</a>.</span>\
@@ -194,6 +194,14 @@ $(".ggdc-bar-toggle").click(function(e){
     $("#ggdc-bar").toggleClass("ggdc-bar-open");
     fixSpacerHeight();
 });
+
+//Shows Tip address
+$(".ggdc-bar-tips").click(function(e){
+	$("#ggdc-bar-content").attr("class", "");
+	$("#ggdc-bar-content").html("If you feel this extension has helped, please consider donating a few Doge to D5hUdmJCGVpLxZgVBwqvKY5UFr51bFRZ9y.<br>Thank you!");
+	$("#ggdc-bar").attr("class", "ggdc-bar-open");
+	fixSpacerHeight();
+})
 
 //Get Values from background.js
 chrome.runtime.sendMessage({get: "creators"}, function(response) {

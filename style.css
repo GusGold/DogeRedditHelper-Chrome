@@ -46,11 +46,12 @@
 
 .ggdc-bar-tips {
 	float: left;
+	cursor: pointer;
 }
 
 .ggdc-bar-head-title {
 	text-align: center;
-	margin: 0 185px 0 350px;
+	margin: 0 185px 0 40px;
 	display: block;
 	white-space: nowrap;
 }
