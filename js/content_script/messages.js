@@ -4,6 +4,7 @@ function highlightMessages(){
             highlightField(this);
         }
     });
+    addOnClick();
 }
 
 function messages_js(){

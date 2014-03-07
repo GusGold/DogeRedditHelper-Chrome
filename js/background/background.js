@@ -1,3 +1,34 @@
+/************
+ Update Check
+************/
+
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == "install"){
+        chrome.tabs.create({
+            url: chrome.extension.getURL("html/installation/install.html")
+        });
+    } else if (details.reason == "update"){
+        chrome.tabs.create({
+            url: chrome.extension.getURL("html/installation/update.html")
+        });
+    }
+});
+
+chrome.tabs.query({}, function(tabs){
+    $.each(tabs, function(i, tab){
+        if (tab.url.indexOf("reddit.com/r/dogemarket") !== -1 || (localStorage.privateAllowed === "true" && tab.url.indexOf("reddit.com/message") !== -1)){
+            chrome.pageAction.show(tab.id);
+        }
+    });
+});
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
+    console.warn(JSON.stringify(changeInfo) + " - " + JSON.stringify(tab));
+    if(tab.url.indexOf("reddit.com/r/dogemarket") !== -1 || (localStorage.privateAllowed === "true" && tab.url.indexOf("reddit.com/message") !== -1)){
+        chrome.pageAction.show(tabId);
+    }
+});
+
 var data = {
     "blacklist": {
         "populated": false,
@@ -202,10 +233,39 @@ $.ajax({
 
 chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
-      console.log(sender.tab ?
-                "from a content script:" + sender.tab.url :
-                "from the extension");
-        if (request.get == "mods"){
+        console.log(sender.tab ?
+            "from a content script:" + sender.tab.url :
+            "from the extension");
+        if (request.get === "help"){
+            chrome.tabs.create({
+                url: chrome.extension.getURL("html/support/help.html")
+            });
+            sendResponse({
+                success: "true"
+            });
+        }
+        if (request.get === "settings"){
+            var allowedToRun = true;
+            if(localStorage.privateAllowed === "false"){
+                chrome.tabs.query({
+                    currentWindow: true, 
+                    active : true},
+                function(tabs){
+                    if(tabs[0].url.indexOf("reddit.com/message") !== -1){
+                        allowedToRun = false;
+                    }
+                    sendResponse({
+                        settings: localStorage,
+                        allowedToRun: allowedToRun
+                    });
+                });
+            } else {
+                sendResponse({
+                    settings: localStorage,
+                    allowedToRun: allowedToRun
+                });
+            }
+        } else if (request.get === "mods"){
             if(data.mods.populated){
                 sendResponse({
                     populated: true,
@@ -218,7 +278,7 @@ chrome.runtime.onMessage.addListener(
                     populated: false
                 });
             }
-        } else if(request.get == "blacklist"){
+        } else if(request.get === "blacklist"){
             if(data.blacklist.populated){
                 sendResponse({
                     populated: true,
@@ -231,7 +291,7 @@ chrome.runtime.onMessage.addListener(
                     populated: false
                 });
             }
-        } else if(request.get == "creators"){
+        } else if(request.get === "creators"){
             sendResponse({
                 entries: data.creators.entries,
                 regex: data.creators.regex,

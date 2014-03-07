@@ -6,7 +6,7 @@
 }
 
 #ggdc-bar-spacer {
-	min-height: 30px;
+
 }
 
 #ggdc-bar {
@@ -14,7 +14,6 @@
 	top: 0;
 	width:100%;
     height:20px;
-    min-height:20px;
     max-height: 230px;
     background-color: #cccccc;
     font-size: 15px;
@@ -38,6 +37,7 @@
 
 .ggdc-bar-open {
 	height: auto !important;
+	display: block;
 }
 
 #ggdc-bar-head {
@@ -49,6 +49,11 @@
 	cursor: pointer;
 }
 
+.ggdc-bar-help {
+	padding-left: 10px;
+	float: left;
+	cursor: pointer;
+}
 .ggdc-bar-head-title {
 	text-align: center;
 	margin: 0 185px 0 40px;

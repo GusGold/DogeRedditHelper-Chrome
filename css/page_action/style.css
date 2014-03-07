@@ -1,0 +1,16 @@
+* {
+    font-family: "Comic Sans MS"
+}
+
+body {
+    width: 180px;
+}
+
+button.fullWidth {
+    display: block;
+    width: 100%;
+}
+
+.center {
+    text-align: center;
+}
