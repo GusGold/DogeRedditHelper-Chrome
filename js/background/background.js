@@ -138,19 +138,25 @@ $.ajax({
             var wallet = [];
             
             $.each(response[i][3].split("\n"), function(){
-                    wallet.push(this.trim());
+                wallet.push(this.trim());
             });
 
             var email = [];
             
             $.each(response[i][4].split("\n"), function(){
-                    email.push(this.trim());
+                email.push(this.trim());
             });
 
             var skype = [];
             
             $.each(response[i][5].split("\n"), function(){
-                    skype.push(this.trim());
+                skype.push(this.trim());
+            });
+
+            var reason = [];
+
+            $.each(response[i][6].split("\n"), function(){
+                reason.push(this.trim());
             });
 
             data.blacklist.entries.push(
@@ -160,7 +166,7 @@ $.ajax({
                     email,
                     skype,
                     (response[i][1].trim().toLowerCase() === "yes"),
-                    response[i][6].trim()));
+                    reason));
 
             if (response[i][0] !== "") {
                 regexBuild.reddit.push(escapeRegEx(response[i][0].trim()));

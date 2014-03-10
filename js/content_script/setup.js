@@ -99,7 +99,7 @@ function addOnClick(){
                         <tr><td>Known Addresses</td><td>" + entry.wallet.join("<br>") + "</td></tr>\
                         <tr><td>Email Addresses</td><td>" + entry.email.join("<br>") + "</td></tr>\
                         <tr><td>Skype</td><td>" + entry.skype.join("<br>") + "</td></tr>\
-                        <tr><td>Reason</td><td>" + entry.reason.replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/, "<a href=\"$1\" target=\"_blank\">$1</a>") + "</td></tr></table>");
+                        <tr><td>Reason</td><td>" + entry.reason.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>") + "</td></tr></table>");
                 } else if (~$.inArray("ggdc-moderator", parClass)){
                     var mod = $(parent).attr("data-ggdc-moderator-reddit");
                     $("#ggdc-bar-content").attr("class", "ggdc-bar-content-moderator");
