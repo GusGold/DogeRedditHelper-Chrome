@@ -53,6 +53,7 @@ function addOnClick(){
             $(this).parent().attr("data-ggdc-found", "1");
             $(this).click(function(event){
                 event.preventDefault();
+                var user_reddit;
                 var parent = $(this).parent()
                 var parClass = parent.attr("class").split(" ");
                 if(~$.inArray("ggdc-blacklist", parClass)){
@@ -100,19 +101,26 @@ function addOnClick(){
                         <tr><td>Email Addresses</td><td>" + entry.email.join("<br>") + "</td></tr>\
                         <tr><td>Skype</td><td>" + entry.skype.join("<br>") + "</td></tr>\
                         <tr><td>Reason</td><td>" + entry.reason.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>") + "</td></tr></table>");
+                    user_reddit = entry.reddit;
                 } else if (~$.inArray("ggdc-moderator", parClass)){
                     var mod = $(parent).attr("data-ggdc-moderator-reddit");
                     $("#ggdc-bar-content").attr("class", "ggdc-bar-content-moderator");
                     $("#ggdc-bar-content").html("User is a current moderator of /r/DogeMarket");
+                    user_reddit = mod;
                 } else if (~$.inArray("ggdc-creators", parClass)){
                     var creator = $(parent).attr("data-ggdc-creator-reddit");
                     $("#ggdc-bar-content").attr("class", "ggdc-bar-content-creators");
                     $("#ggdc-bar-content").html("User created the /r/DogeMarket Helper Extension for Chrome");
+                    user_reddit = creator;
                 } else {
                     var user = $(parent).attr("data-ggdc-user-reddit");
                     $("#ggdc-bar-content").attr("class", "");
-                    $("#ggdc-bar-content").html("There is no information on this user, always trade with care.");
+                    $("#ggdc-bar-content").html("There is no special information on this user, always trade with care.");
+                    user_reddit = user;
                 }
+                $("#ggdc-bar-content").append("<table class=\"ggdc-bar-content-details\">\
+                    <colgroup><col span=\"1\" style=\"width:200px\"><col span=\"1\" ></colgroup>\
+                    <tr><td>Verification Threads</td><td id=\"ggdc-bar-content-details-verification\">Loading...</td></tr>")
                 $("#ggdc-bar").attr("class", "ggdc-bar-open");
                 if(data.settings.alwaysShowBar === "false" && !$("#ggdc-bar").hasClass("ggdc-bar-open")){
                     $("#ggdc-bar").hide();
@@ -122,6 +130,17 @@ function addOnClick(){
                     $("#ggdc-bar-spacer").show();
                 }
                 fixSpacerHeight();
+                chrome.runtime.sendMessage({
+                    get: "user_verification",
+                    user: user_reddit
+                }, function(response){
+                    if(response.success){
+                        $("#ggdc-bar-content-details-verification").html(response.threads);
+                    } else {
+                        $("#ggdc-bar-content-details-verification").html("Could not look up username. Server may be offline.");
+                    }
+                    fixSpacerHeight();
+                });
             });
         }
     });

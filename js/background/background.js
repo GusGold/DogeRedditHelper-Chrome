@@ -23,7 +23,7 @@ chrome.tabs.query({}, function(tabs){
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-    console.warn(JSON.stringify(changeInfo) + " - " + JSON.stringify(tab));
+    // console.warn(JSON.stringify(changeInfo) + " - " + JSON.stringify(tab));
     if(tab.url.indexOf("reddit.com/r/dogemarket") !== -1 || (localStorage.privateAllowed === "true" && tab.url.indexOf("reddit.com/message") !== -1)){
         chrome.pageAction.show(tabId);
     }
@@ -125,90 +125,100 @@ function BlacklistEntry(reddit, wallet, email, skype, deleted, reason) {
 }
 
 //Black List\\
-$.ajax({
-    url: data.blacklist.src,
-    success: function (response_raw) {
-        var response = $.csv.toArrays(response_raw);
-        var regexBuild = {
-            "reddit": [],
-            "wallet": [],
-            "email": [],
-            "skype": []};
-        for (var i = 1; i < response.length; i++) {
-            var wallet = [];
-            
-            $.each(response[i][3].split("\n"), function(){
-                wallet.push(this.trim());
-            });
+function getBlacklist(){
+    $.ajax({
+        url: data.blacklist.src,
+        success: function (response_raw) {
+            var response = $.csv.toArrays(response_raw);
+            var regexBuild = {
+                "reddit": [],
+                "wallet": [],
+                "email": [],
+                "skype": []};
+            for (var i = 1; i < response.length; i++) {
+                var wallet = [];
+                
+                $.each(response[i][3].split("\n"), function(){
+                    wallet.push(this.trim());
+                });
 
-            var email = [];
-            
-            $.each(response[i][4].split("\n"), function(){
-                email.push(this.trim());
-            });
+                var email = [];
+                
+                $.each(response[i][4].split("\n"), function(){
+                    email.push(this.trim());
+                });
 
-            var skype = [];
-            
-            $.each(response[i][5].split("\n"), function(){
-                skype.push(this.trim());
-            });
+                var skype = [];
+                
+                $.each(response[i][5].split("\n"), function(){
+                    skype.push(this.trim());
+                });
 
-            var reason = [];
+                var reason = [];
 
-            $.each(response[i][6].split("\n"), function(){
-                reason.push(this.trim());
-            });
+                $.each(response[i][6].split("\n"), function(){
+                    reason.push(this.trim());
+                });
 
-            data.blacklist.entries.push(
-                new BlacklistEntry(
-                    response[i][0].trim(),
-                    wallet,
-                    email,
-                    skype,
-                    (response[i][1].trim().toLowerCase() === "yes"),
-                    reason));
+                data.blacklist.entries.push(
+                    new BlacklistEntry(
+                        response[i][0].trim(),
+                        wallet,
+                        email,
+                        skype,
+                        (response[i][1].trim().toLowerCase() === "yes"),
+                        reason));
 
-            if (response[i][0] !== "") {
-                regexBuild.reddit.push(escapeRegEx(response[i][0].trim()));
+                if (response[i][0] !== "") {
+                    regexBuild.reddit.push(escapeRegEx(response[i][0].trim()));
+                }
+                $.each(wallet, function(){
+                    if (this.length > 0){
+                        regexBuild.wallet.push(escapeRegEx(this));
+                    }
+                });
+                $.each(email, function(){
+                    if (this.length > 0){
+                        regexBuild.email.push(escapeRegEx(this));
+                    }
+                });
+                $.each(skype, function(){
+                    if (this.length > 0){
+                        regexBuild.skype.push(escapeRegEx(this));
+                    }
+                });
             }
-            $.each(wallet, function(){
-                if (this.length > 0){
-                    regexBuild.wallet.push(escapeRegEx(this));
-                }
-            });
-            $.each(email, function(){
-                if (this.length > 0){
-                    regexBuild.email.push(escapeRegEx(this));
-                }
-            });
-            $.each(skype, function(){
-                if (this.length > 0){
-                    regexBuild.skype.push(escapeRegEx(this));
-                }
-            });
-        }
 
-        if (regexBuild.reddit.length > 0){
-            data.blacklist.regex.reddit = "(\\s|\/u\/|^)(" + regexBuild.reddit.join("|") + ")([^\\w]|$)";
-        }
-        if (regexBuild.wallet.length > 0){
-            data.blacklist.regex.wallet = "(\\s|^)(" + regexBuild.wallet.join("|") + ")([^\\w]|$)";
-        }
-        if (regexBuild.email.length > 0){
-            data.blacklist.regex.email = "(\\s|^)(" + regexBuild.email.join("|") + ")([^\\w]|$)";
-        }
-        if (regexBuild.skype.length > 0){
-            data.blacklist.regex.skype = "(\\s|^)(" + regexBuild.skype.join("|") + ")([^\\w]|$)";
-        }
+            if (regexBuild.reddit.length > 0){
+                data.blacklist.regex.reddit = "(\\s|\/u\/|^)(" + regexBuild.reddit.join("|") + ")([^\\w]|$)";
+            }
+            if (regexBuild.wallet.length > 0){
+                data.blacklist.regex.wallet = "(\\s|^)(" + regexBuild.wallet.join("|") + ")([^\\w]|$)";
+            }
+            if (regexBuild.email.length > 0){
+                data.blacklist.regex.email = "(\\s|^)(" + regexBuild.email.join("|") + ")([^\\w]|$)";
+            }
+            if (regexBuild.skype.length > 0){
+                data.blacklist.regex.skype = "(\\s|^)(" + regexBuild.skype.join("|") + ")([^\\w]|$)";
+            }
 
 
 
-        data.blacklist.populated = true;
-    },
-    error: function (jqXHR, textError, errorThrown) {
-        console.warn("Blacklist: " + textError + " - " + errorThrown);
-    }
-});
+            data.blacklist.populated = true;
+        },
+        error: function (jqXHR, textError, errorThrown) {
+            console.warn("Blacklist: " + textError + " - " + errorThrown);
+        }
+    });
+}
+
+getBlacklist();
+
+setInterval(
+    function(){
+        getBlacklist();
+        console.log("Refreshing blacklist")
+    }, 60*60*1000);
 
 //Mods\\
 $.ajax({
@@ -242,15 +252,41 @@ chrome.runtime.onMessage.addListener(
         console.log(sender.tab ?
             "from a content script:" + sender.tab.url :
             "from the extension");
-        if (request.get === "help"){
+        if (request.get === "user_verification"){
+            $.ajax({
+                url: "http://doge.gusgold.com/api/helper/verification.php",
+                type: "GET",
+                data: {
+                    u: request.user},
+                success: function(response){
+                    var threads = JSON.parse(response);
+                    if(threads.length > 0){
+                        sendResponse({
+                            success: true,
+                            threads: threads.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>")
+                        });
+                    } else {
+                        sendResponse({
+                            success: true,
+                            threads: "None found for user"
+                        });
+                    }
+                },
+                error: function(){
+                    sendResponse({
+                        success: false
+                    });
+                }
+            });
+            return true;
+        } else if (request.get === "help"){
             chrome.tabs.create({
                 url: chrome.extension.getURL("html/support/help.html")
             });
             sendResponse({
                 success: "true"
             });
-        }
-        if (request.get === "settings"){
+        } else if (request.get === "settings"){
             var allowedToRun = true;
             if(localStorage.privateAllowed === "false"){
                 chrome.tabs.query({

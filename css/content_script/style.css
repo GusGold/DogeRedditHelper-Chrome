@@ -31,7 +31,8 @@
 	background-color: white;
 }
 
-.ggdc-bar-content-infotable td {
+.ggdc-bar-content-infotable td,
+.ggdc-bar-content-details td {
 	vertical-align: top;
 }
 
@@ -69,7 +70,12 @@
 }
 
 .ggdc-bar-content-warning {
-	background-color: red !important;
+	background-color: darkred !important;
+	color: white;
+}
+
+.ggdc-bar-content-warning a {
+	color: darkblue;
 }
 
 .ggdc-bar-content-creators {
@@ -78,6 +84,10 @@
 
 .ggdc-bar-content-moderator {
 	background-color: green !important;
+}
+
+.ggdc-bar-content-moderator a {
+	color: darkblue;
 }
 
 .ggdc-moderator,

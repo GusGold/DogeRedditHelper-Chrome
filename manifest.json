@@ -1,7 +1,7 @@
 {
     "name": "DogeCoin Reddit Helper",
     "description": "A helper for Shibes wanting to make DogeCoin Transactions on /r/DogeMarket",
-    "version": "0.3.1",
+    "version": "0.4",
     "manifest_version": 2,
     "icons": {
         "16": "image/icons/icon.16.png",
@@ -11,6 +11,7 @@
     "permissions": [
         "*://*.reddit.com/*",
         "https://docs.google.com/spreadsheet/ccc?key=0AhWLG0SR75vodDA2SG1OcEJKUFhXQ3Z3aHo2blQ3SkE&output=csv",
+        "http://doge.gusgold.com/*",
         "tabs"],
     "background": {
         "scripts": [
@@ -23,7 +24,7 @@
     [
         {
             "matches": ["*://*.reddit.com/r/dogemarket/*"],
-            "exclude_matches": ["*://*/r/dogemarket/comments/*"],
+            "exclude_matches": ["*://*.reddit.com/r/dogemarket/comments/*"],
             "js": [
                 "js/jquery-2.1.0.min.js",
                 "js/content_script/highlighter.js",
