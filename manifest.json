@@ -1,7 +1,7 @@
 {
     "name": "DogeCoin Reddit Helper",
     "description": "A helper for Shibes wanting to make DogeCoin Transactions on /r/DogeMarket",
-    "version": "0.4",
+    "version": "0.5",
     "manifest_version": 2,
     "icons": {
         "16": "image/icons/icon.16.png",

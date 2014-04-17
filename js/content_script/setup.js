@@ -135,7 +135,11 @@ function addOnClick(){
                     user: user_reddit
                 }, function(response){
                     if(response.success){
-                        $("#ggdc-bar-content-details-verification").html(response.threads);
+                        if(response.threads instanceof Array){
+                            $("#ggdc-bar-content-details-verification").html(response.threads.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>"));
+                        } else {
+                            $("#ggdc-bar-content-details-verification").html(response.threads);
+                        }
                     } else {
                         $("#ggdc-bar-content-details-verification").html("Could not look up username. Server may be offline.");
                     }
@@ -149,31 +153,40 @@ function addOnClick(){
 //Thanks to https://forum.jquery.com/user/kbwood.au for the core of this function
 function highlightField(node) {
     var found = $(node).attr("data-ggdc-found") === "1";
-    $(node).contents().each(function() {
-        if (this.nodeType === 3) { // Text
+    var contents = $.makeArray($(node).contents());
+    var index = 0;
+    var total = contents.length;
+    if (total == 0){
+        return;
+    }
+
+    var intId = setInterval(function() {
+        if (contents[index].nodeType === 3) { // Text
             if (!found){
                 //Mods
-                var content = this.nodeValue.replace(new RegExp(data.mods.regex, "gi"), data.mods.replacement);
+                var content = contents[index].nodeValue.replace(new RegExp(data.mods.regex, "gi"), data.mods.replacement);
 
                 //Creators
                 content = content.replace(new RegExp(data.creators.regex, "gi"), data.creators.replacement);
 
                 //Blacklist
-
                 for (var key in data.blacklist.regex){
                     if(data.blacklist.regex.hasOwnProperty(key)){
                         content = content.replace(new RegExp(data.blacklist.regex[key], "gi"), data.blacklist.replacement[key]);
                     }
                 }
-                if (content !== this.nodeValue) {
-                    $(this).replaceWith(content);
+                if (content !== contents[index].nodeValue) {
+                    $(contents[index]).replaceWith(content);
                 }
             }
+        } else if (contents[index].nodeType === 1) { // Element
+            highlightField(contents[index]);
         }
-        else if (this.nodeType === 1) { // Element
-            highlightField(this);
+        index++;
+        if(index == total){
+            clearInterval(intId);
         }
-    });
+    }, 25);
 }
 
 /*****

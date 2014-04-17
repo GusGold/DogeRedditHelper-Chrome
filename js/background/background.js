@@ -263,7 +263,7 @@ chrome.runtime.onMessage.addListener(
                     if(threads.length > 0){
                         sendResponse({
                             success: true,
-                            threads: threads.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>")
+                            threads: threads
                         });
                     } else {
                         sendResponse({

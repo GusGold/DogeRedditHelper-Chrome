@@ -74,10 +74,6 @@
 	color: white;
 }
 
-.ggdc-bar-content-warning a {
-	color: darkblue;
-}
-
 .ggdc-bar-content-creators {
 	background-color: orange !important;
 }
@@ -86,8 +82,13 @@
 	background-color: green !important;
 }
 
+.ggdc-bar-content-warning a{
+	color: rgb(0,190,255);
+}
+
+.ggdc-bar-content-creators a,
 .ggdc-bar-content-moderator a {
-	color: darkblue;
+	color: rgb(0,0,255);
 }
 
 .ggdc-moderator,
@@ -126,4 +127,8 @@
 
 .ggdc-info:hover .ggdc-popup {
 	display: inline;
+}
+
+.flair {
+	cursor: pointer;
 }
