@@ -7,8 +7,8 @@ chrome.tabs.query({
         tab = tabs[0];
     });
 
-$("#show").click(function(e){
-    e.preventDefault();
+document.getElementById("show").addEventListener("click", function(event){
+    event.preventDefault();
     chrome.tabs.sendMessage(tab.id, {
         action: "show",
         context: "info",
@@ -18,8 +18,8 @@ $("#show").click(function(e){
     });
 });
 
-$("#rescan").click(function(e){
-    e.preventDefault();
+document.getElementById("rescan").addEventListener("click", function(event){
+    event.preventDefault();
     chrome.tabs.sendMessage(tab.id, {
         action: "do",
         context: "rescan",
@@ -29,14 +29,14 @@ $("#rescan").click(function(e){
     });
 });
 
-$("#support").click(function(e){
+document.getElementById("support").addEventListener("click", function(event){
     chrome.tabs.create({
         url: chrome.extension.getURL("html/support/help.html")
     });
 });
 
-$("#donation").click(function(e){
-    e.preventDefault();
+document.getElementById("donation").addEventListener("click",function(event){
+    event.preventDefault();
     chrome.tabs.sendMessage(tab.id, {
         action: "show",
         context: "donation",

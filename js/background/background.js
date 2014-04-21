@@ -15,15 +15,15 @@ chrome.runtime.onInstalled.addListener(function(details){
 });
 
 chrome.tabs.query({}, function(tabs){
-    $.each(tabs, function(i, tab){
+    for(var i = 0; i < tabs.length; i++){
+        var tab = tabs[i];
         if (tab.url.indexOf("reddit.com/r/dogemarket") !== -1 || (localStorage.privateAllowed === "true" && tab.url.indexOf("reddit.com/message") !== -1)){
             chrome.pageAction.show(tab.id);
         }
-    });
+    }
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
-    // console.warn(JSON.stringify(changeInfo) + " - " + JSON.stringify(tab));
     if(tab.url.indexOf("reddit.com/r/dogemarket") !== -1 || (localStorage.privateAllowed === "true" && tab.url.indexOf("reddit.com/message") !== -1)){
         chrome.pageAction.show(tabId);
     }
@@ -32,7 +32,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
 var data = {
     "blacklist": {
         "populated": false,
-        "src": "https://docs.google.com/spreadsheet/ccc?key=0AhWLG0SR75vodDA2SG1OcEJKUFhXQ3Z3aHo2blQ3SkE&output=csv",
+        "src": "https://docs.google.com/spreadsheet/ccc",
         "entries": [],
         "regex": {
             "reddit": "",
@@ -40,74 +40,55 @@ var data = {
             "email": "",
             "skype": ""},
         "replacement": {
-            "reddit": "$1" + 
-                $("<span/>",{
-                    "class": "ggdc-blacklist ggdc-info",
-                    text: "$2",
-                    "data-ggdc-blacklist-reddit": "$2"
-                }).append($("<span/>", {
-                    "class": "ggdc-popup",
-                    "html": "More info"
-                })).prop("outerHTML") + "$3",
-            "wallet": "$1" + 
-                $("<span/>",{
-                    "class": "ggdc-blacklist ggdc-info",
-                    text: "$2",
-                    "data-ggdc-blacklist-wallet": "$2"
-                }).append($("<span/>", {
-                    "class": "ggdc-popup",
-                    "html": "More info"
-                })).prop("outerHTML") + "$3",
-            "email": "$1" + 
-                $("<span/>",{
-                    "class": "ggdc-blacklist ggdc-info",
-                    text: "$2",
-                    "data-ggdc-blacklist-email": "$2"
-                }).append($("<span/>", {
-                    "class": "ggdc-popup",
-                    "html": "More info"
-                })).prop("outerHTML") + "$3",
-            "skype": "$1" + 
-                $("<span/>",{
-                    "class": "ggdc-blacklist ggdc-info",
-                    text: "$2",
-                    "data-ggdc-blacklist-skype": "$2"
-                }).append($("<span/>", {
-                    "class": "ggdc-popup",
-                    "html": "More info"
-                })).prop("outerHTML") + "$3"}
-        },
+            "reddit": '$1<span class="ggdc-blacklist ggdc-info" data-ggdc-blacklist-reddit="$2">$2<span class="ggdc-popup">More info</span></span>$3',
+            "wallet": '$1<span class="ggdc-blacklist ggdc-info" data-ggdc-blacklist-wallet="$2">$2<span class="ggdc-popup">More info</span></span>$3',
+            "email": '$1<span class="ggdc-blacklist ggdc-info" data-ggdc-blacklist-email="$2">$2<span class="ggdc-popup">More info</span></span>$3',
+            "skype": '$1<span class="ggdc-blacklist ggdc-info" data-ggdc-blacklist-skype="$2">$2<span class="ggdc-popup">More info</span></span>$3'}},
     "mods": {
         "populated": false,
         "src": "http://www.reddit.com/r/dogemarket/",
         "entries": [],
         "regex": "",
-        "replacement": "$1" + 
-            $("<span/>",{
-                "class": "ggdc-moderator ggdc-info",
-                text: "$2",
-                "data-ggdc-moderator-reddit": "$2"
-            }).append($("<span/>", {
-                "class": "ggdc-popup",
-                "html": "More info"
-            })).prop("outerHTML") + "$3"
-    },
+        "replacement": '$1<span class="ggdc-moderator ggdc-info" data-ggdc-moderator-reddit="$2">$2<span class="ggdc-popup">More info</span></span>$3'},
     "creators": {
         "entries": ["GusGold"],
         "regex": "",
-        "replacement": "$1" + 
-            $("<span/>",{
-                "class": "ggdc-creators ggdc-info",
-                text: "$2",
-                "data-ggdc-creator-reddit": "$2"
-            }).append($("<span/>", {
-                "class": "ggdc-popup",
-                "html": "More info"
-            })).prop("outerHTML") + "$3"
-    }
-};
+        "replacement": '$1<span class="ggdc-creators ggdc-info" data-ggdc-creators-reddit="$2">$2<span class="ggdc-popup">More info</span></span>$3'}};
 
 data.creators.regex = "(\\s|\/u\/|^)(" + data.creators.entries.join("|") + ")([^\\w]|$)";
+
+//Thanks to http://stackoverflow.com/users/517408/dov-amir for the core of the ajax method
+var ajax = {};
+
+ajax.send = function(url, callback, method, data, sync) {
+    var x = new XMLHttpRequest();
+    x.open(method, url, sync);
+    x.onreadystatechange = function() {
+        if (x.readyState == 4) {
+            callback(x.responseText)
+        }
+    };
+    if (method == 'POST') {
+        x.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+    }
+    x.send(data)
+};
+
+ajax.get = function(url, data, callback, sync) {
+    var query = [];
+    for (var key in data) {
+        query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+    }
+    ajax.send(url + '?' + query.join('&'), callback, 'GET', null, sync)
+};
+
+ajax.post = function(url, data, callback, sync) {
+    var query = [];
+    for (var key in data) {
+        query.push(encodeURIComponent(key) + '=' + encodeURIComponent(data[key]));
+    }
+    ajax.send(url, callback, 'POST', query.join('&'), sync)
+};
 
 //Escapes string for use in RegEx
 function escapeRegEx(str) {
@@ -124,9 +105,104 @@ function BlacklistEntry(reddit, wallet, email, skype, deleted, reason) {
     this.reason = reason;
 }
 
+function foreach(arr, operation){
+    for(var i = 0; i < arr.length; i++){
+        operation(arr[i]);
+    }
+}
+
+//jQuery Equivalent
+function parseHTML(str){
+    var temp = document.implementation.createHTMLDocument();
+    temp.body.innerHTML = str;
+    return temp.body.children;
+}
+
+function parseHTMLPage(str){
+    var doc = document.implementation.createHTMLDocument();
+    doc.documentElement.innerHTML = str;
+    return doc;
+}
+
 //Black List\\
 function getBlacklist(){
-    $.ajax({
+    ajax.get(data.blacklist.src, {key: "0AhWLG0SR75vodDA2SG1OcEJKUFhXQ3Z3aHo2blQ3SkE", output: "csv"}, function(response_raw) {
+        var response = $.csv.toArrays(response_raw); //TODO
+        var regexBuild = {
+            "reddit": [],
+            "wallet": [],
+            "email": [],
+            "skype": []};
+        for (var i = 1; i < response.length; i++) {
+            var wallet = [];
+
+            foreach(response[i][3].split("\n"), function(val){
+                wallet.push(val.trim());
+            });
+
+            var email = [];
+            
+            foreach(response[i][4].split("\n"), function(val){
+                email.push(val.trim());
+            });
+
+            var skype = [];
+            
+            foreach(response[i][5].split("\n"), function(val){
+                skype.push(val.trim());
+            });
+
+            var reason = [];
+
+            foreach(response[i][6].split("\n"), function(val){
+                reason.push(val.trim());
+            });
+
+            data.blacklist.entries.push(
+                new BlacklistEntry(
+                    response[i][0].trim(),
+                    wallet,
+                    email,
+                    skype,
+                    (response[i][1].trim().toLowerCase() === "yes"),
+                    reason));
+
+            if (response[i][0] !== "") {
+                regexBuild.reddit.push(escapeRegEx(response[i][0].trim()));
+            }
+            foreach(wallet, function(val){
+                if (val.length > 0){
+                    regexBuild.wallet.push(escapeRegEx(val));
+                }
+            });
+            foreach(email, function(val){
+                if (val.length > 0){
+                    regexBuild.email.push(escapeRegEx(val));
+                }
+            });
+            foreach(skype, function(val){
+                if (val.length > 0){
+                    regexBuild.skype.push(escapeRegEx(val));
+                }
+            });
+        }
+
+        if (regexBuild.reddit.length > 0){
+            data.blacklist.regex.reddit = "(\\s|\/u\/|^)(" + regexBuild.reddit.join("|") + ")([^\\w]|$)";
+        }
+        if (regexBuild.wallet.length > 0){
+            data.blacklist.regex.wallet = "(\\s|^)(" + regexBuild.wallet.join("|") + ")([^\\w]|$)";
+        }
+        if (regexBuild.email.length > 0){
+            data.blacklist.regex.email = "(\\s|^)(" + regexBuild.email.join("|") + ")([^\\w]|$)";
+        }
+        if (regexBuild.skype.length > 0){
+            data.blacklist.regex.skype = "(\\s|^)(" + regexBuild.skype.join("|") + ")([^\\w]|$)";
+        }
+
+        data.blacklist.populated = true;
+    });
+    /*$.ajax({
         url: data.blacklist.src,
         success: function (response_raw) {
             var response = $.csv.toArrays(response_raw);
@@ -209,7 +285,7 @@ function getBlacklist(){
         error: function (jqXHR, textError, errorThrown) {
             console.warn("Blacklist: " + textError + " - " + errorThrown);
         }
-    });
+    });*/
 }
 
 getBlacklist();
@@ -221,30 +297,19 @@ setInterval(
     }, 60*60*1000);
 
 //Mods\\
-$.ajax({
-    url: data.mods.src,
-    success: function (response_raw) {
-        var response = $.parseHTML(response_raw);
-        $("body").html(response);
-        var results = $("body").find("div.side > .spacer > .sidecontentbox");
-        for (var i = 0; i < results.length; i++) {
-            $("body").html(results[i]);
-            if ($("body").find(".title > h1").text() == "MODERATORS") {
-                $("body").html(results[i]);
-                var regexBuild = [];
-                $("body .content > li > a").each(function(){
-                    data.mods.entries.push($(this).text());
-                    regexBuild.push($(this).text());
-                });
-                data.mods.populated = true;
-                data.mods.regex = "(\\s|\/u\/|^)(" + regexBuild.join("|") + ")([^\\w]|$)";
-                break;
+ajax.get(data.mods.src, {}, function(response_raw){
+    var response = parseHTMLPage(response_raw);
+    var results = response.body.querySelectorAll("div.side > .spacer > .sidecontentbox");
+    foreach(results, function(entry){
+        if(entry.querySelector(".title > h1").innerText === "MODERATORS"){
+            var mods = entry.querySelectorAll(".content > li > a");
+            for(var i = 0; i < mods.length; i++){
+                data.mods.entries.push(mods[i].innerText);
             }
+            data.mods.regex = "(\\s|\/u\/|^)(" + data.mods.entries.join("|") + ")([^\\w]|$)";
+            data.mods.populated = true;
         }
-    },
-    error: function (jqXHR, textError, errorThrown) {
-        console.warn("Mods: " + textError + " - " + errorThrown);
-    }
+    })
 });
 
 chrome.runtime.onMessage.addListener(
@@ -253,28 +318,17 @@ chrome.runtime.onMessage.addListener(
             "from a content script:" + sender.tab.url :
             "from the extension");
         if (request.get === "user_verification"){
-            $.ajax({
-                url: "http://doge.gusgold.com/api/helper/verification.php",
-                type: "GET",
-                data: {
-                    u: request.user},
-                success: function(response){
-                    var threads = JSON.parse(response);
-                    if(threads.length > 0){
-                        sendResponse({
-                            success: true,
-                            threads: threads
-                        });
-                    } else {
-                        sendResponse({
-                            success: true,
-                            threads: "None found for user"
-                        });
-                    }
-                },
-                error: function(){
+            ajax.get("http://doge.gusgold.com/api/helper/verification.php", {u: request.user, f: "json"}, function(response){
+                var threads = JSON.parse(response);
+                if(threads.length > 0){
                     sendResponse({
-                        success: false
+                        success: true,
+                        threads: threads
+                    });
+                } else {
+                    sendResponse({
+                        success: true,
+                        threads: "None found for user"
                     });
                 }
             });

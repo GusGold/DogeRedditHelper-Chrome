@@ -1,7 +1,7 @@
 {
     "name": "DogeCoin Reddit Helper",
     "description": "A helper for Shibes wanting to make DogeCoin Transactions on /r/DogeMarket",
-    "version": "0.5",
+    "version": "0.6",
     "manifest_version": 2,
     "icons": {
         "16": "image/icons/icon.16.png",
@@ -26,7 +26,6 @@
             "matches": ["*://*.reddit.com/r/dogemarket/*"],
             "exclude_matches": ["*://*.reddit.com/r/dogemarket/comments/*"],
             "js": [
-                "js/jquery-2.1.0.min.js",
                 "js/content_script/highlighter.js",
                 "js/content_script/setup.js",
                 "js/content_script/dogemarket.js"],
@@ -36,7 +35,6 @@
         {
             "matches": ["*://*.reddit.com/r/dogemarket/comments/*"],
             "js": [
-                "js/jquery-2.1.0.min.js",
                 "js/content_script/highlighter.js",
                 "js/content_script/comments.js",
                 "js/content_script/setup.js"],
@@ -46,7 +44,6 @@
         {
             "matches": ["*://*.reddit.com/message/*"],
             "js": [
-                "js/jquery-2.1.0.min.js",
                 "js/content_script/highlighter.js",
                 "js/content_script/messages.js",
                 "js/content_script/setup.js"],

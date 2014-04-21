@@ -1,28 +1,29 @@
 //Finds and marks Authors for highlighting
 function highlightAuthors(){
-    var elems = $(".content .author");
+    var elems = document.querySelectorAll(".content .author");
     var index = 0;
-    var total = elems.length;
+    var total = elems.length - 1;
     var intId = setInterval(function(){
-    	if ($(elems.get(index)).attr("data-ggdc-found") !== "1"){
-	        var text = $(elems.get(index)).text();
-	        if(~$.inArray(text, data.mods.entries)){
-	            $(elems.get(index)).addClass("ggdc-moderator");
-	            $(elems.get(index)).attr("data-ggdc-moderator-reddit", escapeQuotes(text));
+    	if (elems[index].getAttribute("data-ggdc-found") !== "1"){
+	        var text = elems[index].innerText;
+	        if(data.mods.entries.indexOf(text) >= 0){
+	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-moderator");
+	            elems[index].setAttribute("data-ggdc-moderator-reddit", escapeQuotes(text));
 	        } else if(text == data.creators.entries){
-	            $(elems.get(index)).addClass("ggdc-creators");
-	            $(elems.get(index)).attr("data-ggdc-creator-reddit", escapeQuotes(text));
-	        } else if($.grep(data.blacklist.entries, function(entry){return(entry.reddit.toLowerCase() === text.toLowerCase());}).length){
-	            $(elems.get(index)).addClass("ggdc-blacklist");
-	            $(elems.get(index)).attr("data-ggdc-blacklist-reddit", escapeQuotes(text));
+	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-creators");
+                elems[index].setAttribute("data-ggdc-creators-reddit", escapeQuotes(text));
+	        } else if(grep(data.blacklist.entries, function(entry){return(entry.reddit.toLowerCase() === text.toLowerCase());}).length){
+	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-blacklist");
+	            elems[index].setAttribute("data-ggdc-blacklist-reddit", escapeQuotes(text));
 	        } else {
-	        	$(elems.get(index)).attr("data-ggdc-user-reddit", escapeQuotes(text));
+	        	elems[index].setAttribute("data-ggdc-user-reddit", escapeQuotes(text));
 	        }
-	        $(elems.get(index)).addClass("ggdc-info");
-	        $(elems.get(index)).append($("<span/>", {
-	                "class": "ggdc-popup",
-	                "html": "More info"
-	            }));
+	        elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-info");
+            var newElem = document.createElement("span");
+            newElem.setAttribute("class", "ggdc-popup");
+
+            newElem.innerHTML = "More info";
+            elems[index].appendChild(newElem);
 	    }
 
         index++;
@@ -33,31 +34,41 @@ function highlightAuthors(){
         }
     }, 25);
 
-    $(".content .flair").click(function(){
-        var user = $(this).parent().find("a.author").contents()[0].data;
-        $("#ggdc-bar-content").attr("class", "");
-        $("#ggdc-bar-content").html("Finding " + user + "'s latest verification thread...");
-        $("#ggdc-bar").attr("class", "ggdc-bar-open");
-        fixSpacerHeight();
-        chrome.runtime.sendMessage({
-            get: "user_verification",
-            user: user},
-            function(response){
-                if(response.success){
-                    if(response.threads.length > 0){
-                        window.open(response.threads[response.threads.length - 1], "_blank");
-                        $("#ggdc-bar-content").html("Found " + user + "'s latest verification thread. It has been opened in a new tab.");
-                        $("#ggdc-bar").attr("class", "ggdc-bar-open");
-                    } else {
-                        $("#ggdc-bar-content").html(user + "has no verification threads.");
-                        $("#ggdc-bar").attr("class", "ggdc-bar-open");
-                    }
-                } else {
-                    $("#ggdc-bar-content-details-verification").html("Could not look up username. Server may be offline.");
-                }
+    (function(){
+        var flairs = document.querySelectorAll(".content .flair");
+        for (i = 0; i < flairs.length -1; i++){
+            flairs[i].addEventListener("click", function(event){
+                event.preventDefault();
+                console.log(i);
+                console.log(flairs);
+                console.log(flairs[i]);
+                var user = flairs[i].parentNode.querySelector("a.author").childNodes[0];
+                document.getElementById("ggdc-bar-content").setAttribute("class", "");
+                document.getElementById("ggdc-bar-content").innerHTML = "Finding " + user + "'s latest verification thread...";
+                document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
                 fixSpacerHeight();
-        });
-    });
+                chrome.runtime.sendMessage({
+                    get: "user_verification",
+                    user: user},
+                    function(response){
+                        if(response.success){
+                            if(response.threads.length > 0){
+                                window.open(response.threads[response.threads.length - 1], "_blank");
+                                document.getElementById("ggdc-bar-content").innerHTML = "Found " + user + "'s latest verification thread. It has been opened in a new tab.";
+                                document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
+                            } else {
+                                document.getElementById("ggdc-bar-content").innerHTML = user + "has no verification threads.";
+                                document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
+                            }
+                        } else {
+                            document.getElementById("ggdc-bar-content-details-verification").innerHTML = "Could not look up username. Server may be offline.";
+                        }
+                        fixSpacerHeight();
+                    }
+                );
+            });
+        }
+    })();
 }
 
 
@@ -67,7 +78,7 @@ function highlighter_js(){
     ******/
 
     //Rescans page for new information (User Activated)
-    $(".ggdc-bar-rescan").click(function(event){
+    document.getElementById("ggdc-bar-rescan").addEventListener("click", function(event){
         highlightAuthors();
     });
 

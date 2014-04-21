@@ -9,15 +9,44 @@ if(localStorage.alwaysShowBar === undefined){
     localStorage.alwaysShowBar = true;
 }
 
+function fade(elem, fadeFrom, fadeTo, time, callback){
+    var intId, step;
+
+    elem.style.opacity = fadeFrom;
+    elem.style.display = null;
+
+    step = (fadeTo - fadeFrom) / time;
+
+    if(fadeTo === fadeFrom){
+        return;
+    } else {
+        intId = setInterval(
+            function(){
+                var op = parseFloat(elem.style.opacity) + step;
+
+                if((step > 0 && op >= fadeTo) || (step < 0 && op <= fadeTo)){
+                    elem.style.opacity = fadeTo;
+                    clearInterval(intId);
+                    if(callback !== undefined){
+                        (callback.bind(elem))();
+                    }
+                } else {
+                    elem.style.opacity = op;
+                }
+            }, 1);
+    }
+}
+
 function saveFlash(elem){
-    var save = $("<span/>", {
-        "class": "saved",
-        html: "Saved!"
-    }).hide().appendTo(elem).fadeIn(250);
+    var save, inserted;
+    save = document.createElement("span");
+    save.setAttribute("class", "saved");
+    save.innerHTML = "Saved!";
+    save.style.display = "none";
+    elem.appendChild(save);
+    fade(save, 0, 1, 250);
     setTimeout(function(){
-        $(save).fadeOut(250, function(){
-            this.remove();
-        });
+        fade(save, 1, 0, 250, function(){ this.parentNode.removeChild(this); });
     }, 2000);
 }
 
@@ -27,18 +56,18 @@ function saveFlash(elem){
 
 
 
-var privateAllowed = $("#privateAllowed");
-var alwaysShowBar = $("#alwaysShowBar");
+var privateAllowed = document.getElementById("privateAllowed");
+var alwaysShowBar = document.getElementById("alwaysShowBar");
 
-$(privateAllowed).prop("checked", localStorage.privateAllowed === "true");
-$(alwaysShowBar).prop("checked", localStorage.alwaysShowBar === "true");
+privateAllowed.checked = localStorage.privateAllowed === "true";
+alwaysShowBar.checked = localStorage.alwaysShowBar === "true";
 
-$(privateAllowed).change(function(){
-    localStorage.privateAllowed = $(this).prop("checked");
-    saveFlash($(this).parent());
+privateAllowed.addEventListener("click", function(){
+    localStorage.privateAllowed = this.checked;
+    saveFlash(this.parentNode);
 });
 
-$(alwaysShowBar).change(function(){
-    localStorage.alwaysShowBar = $(this).prop("checked");
-    saveFlash($(this).parent());
+alwaysShowBar.addEventListener("click", function(){
+    localStorage.alwaysShowBar = this.checked;
+    saveFlash(this.parentNode);
 });

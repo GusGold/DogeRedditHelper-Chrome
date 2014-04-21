@@ -1,9 +1,10 @@
 function highlightMessages(){
-    $(".noncollapsed > .md").each(function(){
-        if ($(this).parent().css("display") !== "none"){
-            highlightField(this);
+    var messages = document.querySelectorAll(".noncollapsed > .md");
+    for (i = 0; i < messages.length; i++){
+        if(messages[i].parentNode.style.display !== "none"){
+            highlightField(messages[i]);
         }
-    });
+    }
     addOnClick();
 }
 
@@ -13,7 +14,7 @@ function messages_js(){
     ******/
 
     //Rescans page for new information (User Activated)
-    $(".ggdc-bar-rescan").click(function(event){
+    document.getElementById("ggdc-bar-rescan").addEventListener("click", function(event){
         highlightMessages();
     });
 
