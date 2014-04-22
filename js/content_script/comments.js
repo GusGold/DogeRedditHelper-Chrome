@@ -1,15 +1,20 @@
 function highlightComments(){
+    function loopComments(elems){
+        highlightField(elems[index], function(){
+            index++;
+            if(index < total){
+                setTimeout(function(){
+                    loopComments(elems);
+                }, 25);
+            }
+        });
+    }
+
     var elems = document.querySelectorAll(".content .usertext-body > .md");
     var index = 0;
     var total = elems.length;
-    var intId = setInterval(function(){
-    	highlightField(elems[index]);
-        index++;
-        if(index == total){
-            clearInterval(intId);
-            addOnClick();
-        }
-    }, 25);
+
+    loopComments(elems);
 }
 
 function comments_js(){

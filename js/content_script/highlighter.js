@@ -34,15 +34,40 @@ function highlightAuthors(){
         }
     }, 25);
 
-    (function(){
-        var flairs = document.querySelectorAll(".content .flair");
-        for (i = 0; i < flairs.length -1; i++){
+    var flairs = document.querySelectorAll(".content .flair");
+    /*flairs.forEach(function(flair, i){
+        flair.addEventListener("click", function(event){
+            var user = flair.parentNode.querySelector("a.author").childNodes[0].nodeValue;
+            document.getElementById("ggdc-bar-content").setAttribute("class", "");
+            document.getElementById("ggdc-bar-content").innerHTML = "Finding " + user + "'s latest verification thread...";
+            document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
+            fixSpacerHeight();
+            chrome.runtime.sendMessage({
+                get: "user_verification",
+                user: user},
+                function(response){
+                    if(response.success){
+                        if(response.threads.length > 0){
+                            console.dir(response);
+                            window.open(response.threads[response.threads.length - 1], "_blank");
+                            document.getElementById("ggdc-bar-content").innerHTML = "Found " + user + "'s latest verification thread. It has been opened in a new tab.";
+                            document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
+                        } else {
+                            document.getElementById("ggdc-bar-content").innerHTML = user + " has no verification threads.";
+                            document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
+                        }
+                    } else {
+                        document.getElementById("ggdc-bar-content-details-verification").innerHTML = "Could not look up username. Server may be offline.";
+                    }
+                    fixSpacerHeight();
+                }
+            );
+        });
+    });*/
+    for (var i = 0; i < flairs.length; i++){
+        (function(i){
             flairs[i].addEventListener("click", function(event){
-                event.preventDefault();
-                console.log(i);
-                console.log(flairs);
-                console.log(flairs[i]);
-                var user = flairs[i].parentNode.querySelector("a.author").childNodes[0];
+                var user = flairs[i].parentNode.querySelector("a.author").childNodes[0].nodeValue;
                 document.getElementById("ggdc-bar-content").setAttribute("class", "");
                 document.getElementById("ggdc-bar-content").innerHTML = "Finding " + user + "'s latest verification thread...";
                 document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
@@ -53,11 +78,12 @@ function highlightAuthors(){
                     function(response){
                         if(response.success){
                             if(response.threads.length > 0){
+                                console.dir(response);
                                 window.open(response.threads[response.threads.length - 1], "_blank");
                                 document.getElementById("ggdc-bar-content").innerHTML = "Found " + user + "'s latest verification thread. It has been opened in a new tab.";
                                 document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
                             } else {
-                                document.getElementById("ggdc-bar-content").innerHTML = user + "has no verification threads.";
+                                document.getElementById("ggdc-bar-content").innerHTML = user + " has no verification threads.";
                                 document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
                             }
                         } else {
@@ -67,8 +93,8 @@ function highlightAuthors(){
                     }
                 );
             });
-        }
-    })();
+        })(i);
+    }
 }
 
 

@@ -202,90 +202,6 @@ function getBlacklist(){
 
         data.blacklist.populated = true;
     });
-    /*$.ajax({
-        url: data.blacklist.src,
-        success: function (response_raw) {
-            var response = $.csv.toArrays(response_raw);
-            var regexBuild = {
-                "reddit": [],
-                "wallet": [],
-                "email": [],
-                "skype": []};
-            for (var i = 1; i < response.length; i++) {
-                var wallet = [];
-                
-                $.each(response[i][3].split("\n"), function(){
-                    wallet.push(this.trim());
-                });
-
-                var email = [];
-                
-                $.each(response[i][4].split("\n"), function(){
-                    email.push(this.trim());
-                });
-
-                var skype = [];
-                
-                $.each(response[i][5].split("\n"), function(){
-                    skype.push(this.trim());
-                });
-
-                var reason = [];
-
-                $.each(response[i][6].split("\n"), function(){
-                    reason.push(this.trim());
-                });
-
-                data.blacklist.entries.push(
-                    new BlacklistEntry(
-                        response[i][0].trim(),
-                        wallet,
-                        email,
-                        skype,
-                        (response[i][1].trim().toLowerCase() === "yes"),
-                        reason));
-
-                if (response[i][0] !== "") {
-                    regexBuild.reddit.push(escapeRegEx(response[i][0].trim()));
-                }
-                $.each(wallet, function(){
-                    if (this.length > 0){
-                        regexBuild.wallet.push(escapeRegEx(this));
-                    }
-                });
-                $.each(email, function(){
-                    if (this.length > 0){
-                        regexBuild.email.push(escapeRegEx(this));
-                    }
-                });
-                $.each(skype, function(){
-                    if (this.length > 0){
-                        regexBuild.skype.push(escapeRegEx(this));
-                    }
-                });
-            }
-
-            if (regexBuild.reddit.length > 0){
-                data.blacklist.regex.reddit = "(\\s|\/u\/|^)(" + regexBuild.reddit.join("|") + ")([^\\w]|$)";
-            }
-            if (regexBuild.wallet.length > 0){
-                data.blacklist.regex.wallet = "(\\s|^)(" + regexBuild.wallet.join("|") + ")([^\\w]|$)";
-            }
-            if (regexBuild.email.length > 0){
-                data.blacklist.regex.email = "(\\s|^)(" + regexBuild.email.join("|") + ")([^\\w]|$)";
-            }
-            if (regexBuild.skype.length > 0){
-                data.blacklist.regex.skype = "(\\s|^)(" + regexBuild.skype.join("|") + ")([^\\w]|$)";
-            }
-
-
-
-            data.blacklist.populated = true;
-        },
-        error: function (jqXHR, textError, errorThrown) {
-            console.warn("Blacklist: " + textError + " - " + errorThrown);
-        }
-    });*/
 }
 
 getBlacklist();
@@ -328,7 +244,7 @@ chrome.runtime.onMessage.addListener(
                 } else {
                     sendResponse({
                         success: true,
-                        threads: "None found for user"
+                        threads: []
                     });
                 }
             });
