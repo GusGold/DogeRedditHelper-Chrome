@@ -2,17 +2,17 @@
  Update Check
 ************/
 
-chrome.runtime.onInstalled.addListener(function(details){
-    if(details.reason == "install"){
-        chrome.tabs.create({
-            url: chrome.extension.getURL("html/installation/install.html")
-        });
-    } else if (details.reason == "update"){
-        chrome.tabs.create({
-            url: chrome.extension.getURL("html/installation/update.html")
-        });
-    }
-});
+// chrome.runtime.onInstalled.addListener(function(details){
+//     if(details.reason == "install"){
+//         chrome.tabs.create({
+//             url: chrome.extension.getURL("html/installation/install.html")
+//         });
+//     } else if (details.reason == "update"){
+//         chrome.tabs.create({
+//             url: chrome.extension.getURL("html/installation/update.html")
+//         });
+//     }
+// });
 
 chrome.tabs.query({}, function(tabs){
     for(var i = 0; i < tabs.length; i++){
@@ -36,7 +36,7 @@ var intervals = {
 var data = {
     "blacklist": {
         "populated": -1,
-        "src": "https://docs.google.com/spreadsheet/ccc",
+        "src": "http://doge.gusgold.com/api/helper/blacklist.php",
         "entries": [],
         "regex": {
             "reddit": "",
@@ -175,9 +175,10 @@ function getBlacklist(){
                 getBlacklist();
                 console.log("Refreshing blacklist");
             }, 60*60*1000);
-    ajax.get(data.blacklist.src, {key: "0AhWLG0SR75vodDA2SG1OcEJKUFhXQ3Z3aHo2blQ3SkE", output: "csv"}, 3, function(response_raw) {
+    ajax.get(data.blacklist.src, {}, 3, function(response_raw) {
         if(response_raw !== false){
-            var response = $.csv.toArrays(response_raw); //TODO
+            var response = JSON.parse(response_raw);
+            
             var regexBuild = {
                 "reddit": [],
                 "wallet": [],
@@ -185,40 +186,44 @@ function getBlacklist(){
                 "skype": []};
             for (var i = 1; i < response.length; i++) {
                 var wallet = [];
-
-                foreach(response[i][3].split("\n"), function(val){
-                    wallet.push(val.trim());
-                });
+                if(typeof response[i]["a"] !== "undefined"){
+                    foreach(response[i]["a"].split("\n"), function(val){
+                        wallet.push(val.trim());
+                    });
+                }
 
                 var email = [];
-                
-                foreach(response[i][4].split("\n"), function(val){
-                    email.push(val.trim());
-                });
+                if(typeof response[i]["e"] !== "undefined"){
+                    foreach(response[i]["e"].split("\n"), function(val){
+                        email.push(val.trim());
+                    });
+                }
 
                 var skype = [];
-                
-                foreach(response[i][5].split("\n"), function(val){
-                    skype.push(val.trim());
-                });
+                if(typeof response[i]["s"] !== "undefined"){
+                    foreach(response[i]["s"].split("\n"), function(val){
+                        skype.push(val.trim());
+                    });
+                }
 
                 var reason = [];
-
-                foreach(response[i][6].split("\n"), function(val){
-                    reason.push(val.trim());
-                });
+                if(typeof response[i]["r"] !== "undefined"){
+                    foreach(response[i]["r"].split("\n"), function(val){
+                        reason.push(val.trim());
+                    });
+                }
 
                 data.blacklist.entries.push(
                     new BlacklistEntry(
-                        response[i][0].trim(),
+                        (typeof response[i]["u"] !== "undefined" ? response[i]["u"].trim() : ""),
                         wallet,
                         email,
                         skype,
-                        (response[i][1].trim().toLowerCase() === "yes"),
+                        (typeof response[i]["d"] !== "undefined" && response[i]["d"].trim().toLowerCase() === "yes"),
                         reason));
 
-                if (response[i][0] !== "") {
-                    regexBuild.reddit.push(escapeRegEx(response[i][0].trim()));
+                if (typeof response[i]["u"] !== "undefined" && response[i]["u"] !== "") {
+                    regexBuild.reddit.push(escapeRegEx(response[i]["u"].trim()));
                 }
                 foreach(wallet, function(val){
                     if (val.length > 0){
@@ -270,7 +275,7 @@ function getMods(){
                 getMods();
                 console.log("Refreshing blacklist");
             }, 60*60*1000);
-    
+
     ajax.get(data.mods.src, {}, 3, function(response_raw){
         if (response_raw !== false){
             var response = parseHTMLPage(response_raw);
