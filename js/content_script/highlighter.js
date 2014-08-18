@@ -4,33 +4,33 @@ function highlightAuthors(){
     var index = 0;
     var total = elems.length - 1;
     var intId = setInterval(function(){
-    	if (elems[index].getAttribute("data-ggdc-found") !== "1"){
-	        var text = elems[index].innerText;
-	        if(data.mods.entries.indexOf(text) >= 0){
-	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-moderator");
-	            elems[index].setAttribute("data-ggdc-moderator-reddit", escapeQuotes(text));
-	        } else if(text == data.creators.entries){
-	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-creators");
-                elems[index].setAttribute("data-ggdc-creators-reddit", escapeQuotes(text));
-	        } else if(grep(data.blacklist.entries, function(entry){return(entry.reddit.toLowerCase() === text.toLowerCase());}).length){
-	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-blacklist");
-	            elems[index].setAttribute("data-ggdc-blacklist-reddit", escapeQuotes(text));
-	        } else {
-	        	elems[index].setAttribute("data-ggdc-user-reddit", escapeQuotes(text));
-	        }
-	        elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-info");
-            var newElem = document.createElement("span");
-            newElem.setAttribute("class", "ggdc-popup");
-
-            newElem.innerHTML = "More info";
-            elems[index].appendChild(newElem);
-	    }
-
-        index++;
-
         if(index > total){
             clearInterval(intId);
-            addOnClick();
+        } else {
+        	if (elems[index].getAttribute("data-ggdc-found") !== "1"){
+    	        var text = elems[index].innerText;
+    	        if(text == data.creators.entries){
+    	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-creators");
+                    elems[index].setAttribute("data-ggdc-creators-reddit", escapeQuotes(text));
+    	        } else if(data.mods.entries.indexOf(text) >= 0){
+                    elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-moderator");
+                    elems[index].setAttribute("data-ggdc-moderator-reddit", escapeQuotes(text));
+                } else if(grep(data.blacklist.entries, function(entry){return(entry.reddit.toLowerCase() === text.toLowerCase());}).length){
+    	            elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-blacklist");
+    	            elems[index].setAttribute("data-ggdc-blacklist-reddit", escapeQuotes(text));
+    	        } else {
+    	        	elems[index].setAttribute("data-ggdc-user-reddit", escapeQuotes(text));
+    	        }
+    	        elems[index].setAttribute("class", elems[index].getAttribute("class") + " ggdc-info");
+                var newElem = document.createElement("span");
+                newElem.setAttribute("class", "ggdc-popup");
+
+                newElem.innerHTML = "More info";
+                elems[index].appendChild(newElem);
+                addOnClick(elems[index]);
+    	    }
+
+            index++;
         }
     }, 25);
 

@@ -36,28 +36,37 @@ function fixSpacerHeight(){
 function showErrors(){
     if(errors.length){
         if(errors.length === 1){
-            document.getElementById("ggdc-bar-content").innerHTML = "Unable to get all necessary data. Dogemarket Helper " + errors[0] + ". <br/> Please reload the page. If this continues to show, an error has occured while trying to get this information. Please restart the extension to fix.";
+            document.getElementById("ggdc-bar-content").innerHTML = "Dogemarket Helper " + errors[0] + ".";
         } else {
-            document.getElementById("ggdc-bar-content").innerHTML = "Unable to get all necessary data. Dogemarket Helper " + errors.join(" and ") + ". <br/> Please reload the page. If this continues to show, an error has occured while trying to get this information. Please restart the extension to fix.";
+            document.getElementById("ggdc-bar-content").innerHTML = "Dogemarket Helper " + errors.join(" and ") + ".";
         }
         document.getElementById("ggdc-bar-content").setAttribute("class", "ggdc-bar-content-warning");
         document.getElementById("ggdc-bar").setAttribute("class", "ggdc-bar-open");
+        document.querySelector("#ggdc-bar-content #ggdc-bar-content-retry").addEventListener("click", function(event){
+            event.preventDefault();
+            refreshBlacklist();
+        });
         fixSpacerHeight();
         errors = [];
     }
 }
 
 //adds onClick event for popup elements
-function addOnClick(){
-    var contents = document.getElementsByClassName("content");
-    for (contentsI = 0; contentsI < contents.length; contentsI++){
-        var popups = contents[contentsI].getElementsByClassName("ggdc-popup");
-        for (popupsI = 0; popupsI < popups.length; popupsI++){
-            var popup = popups[popupsI];
-            var parent = popup.parentNode;
+function addOnClick(elem){
+    // var contents = document.getElementsByClassName("content");
+    // for (contentsI = 0; contentsI < contents.length; contentsI++){
+    //     var popups = contents[contentsI].getElementsByClassName("ggdc-popup");
+    //     for (popupsI = 0; popupsI < popups.length; popupsI++){
+    //         var popup = popups[popupsI];
+    //         var parent = popup.parentNode;
 
-            //popup hasn't been found/set previously
+    //         //popup hasn't been found/set previously
+
+            var parent = elem;
+            var popup = elem.getElementsByClassName("ggdc-popup")[0];
+
             if(parent.getAttribute("data-ggdc-found") !== "1"){
+
                 parent.setAttribute("data-ggdc-found", "1");
                 popup.addEventListener("click", function(event){
                     popup = event.target;
@@ -92,16 +101,17 @@ function addOnClick(){
                                     }   
                                 }})[0];
                         }
-
+                        console.dir(entry);
                         //Blacklist info table
-                        document.getElementById("ggdc-bar-content").setAttribute("class", parent.getAttribute("class") + " ggdc-bar-content-warning");
+                        document.getElementById("ggdc-bar-content").setAttribute("class", "ggdc-bar-content-warning");
                         document.getElementById("ggdc-bar-content").innerHTML = "User is on the blacklist! Take extreme care if trading. Details are listed below:<br><br>\
                             <table class=\"ggdc-bar-content-infotable\"><colgroup><col span=\"1\" style=\"width:200px\"><col span=\"1\" ></colgroup>\
-                            <tr><td>Reddit Username</td><td>" + entry.reddit + "</td></tr>\
-                            <tr><td>Known Addresses</td><td>" + entry.wallet.join("<br>") + "</td></tr>\
-                            <tr><td>Email Addresses</td><td>" + entry.email.join("<br>") + "</td></tr>\
-                            <tr><td>Skype</td><td>" + entry.skype.join("<br>") + "</td></tr>\
-                            <tr><td>Reason</td><td>" + entry.reason.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>") + "</td></tr></table>";
+                            <tr><td>Reddit Username</td><td>" + entry.reddit + "</td></tr>" + 
+                            (entry.wallet[0] !== "" ? "<tr><td>Known Addresses</td><td>" + entry.wallet.join("<br>") + "</td></tr>" : "") +
+                            (entry.email[0] !== "" ? "<tr><td>Email Addresses</td><td>" + entry.email.join("<br>") + "</td></tr>" : "") +
+                            (entry.skype[0] !== "" ? "<tr><td>Skype</td><td>" + entry.skype.join("<br>") + "</td></tr>" : "") + 
+                            (entry.reason[0] !== "" ? "<tr><td>Reason</td><td>" + entry.reason.join("<br>").replace(/((http|https):\/\/([\w-.]+)+(:\d+)?(\/([\w\/_\\-\\.]*(\?\S+)?)?)?)/gi, "<a href=\"$1\" target=\"_blank\">$1</a>") + "</td></tr>" : "") +
+                            "</table>";
                         user_reddit = entry.reddit;
                     //parClass has moderator class
                     } else if (parClass.indexOf("ggdc-moderator") !== -1){
@@ -153,8 +163,8 @@ function addOnClick(){
                     });
                 });
             }
-        }   
-    }
+    //     }   
+    // }
 }
 
 //Thanks to https://forum.jquery.com/user/kbwood.au for the core of this function
@@ -179,22 +189,28 @@ function highlightField(node, callback) {
     for(var i = 0; i < nodes.length; i++){
         var content;
 
-        //Mods
-        content = nodes[i].nodeValue.replace(new RegExp(data.mods.regex, "gi"), data.mods.replacement);
-
         //Creators
-        content = content.replace(new RegExp(data.creators.regex, "gi"), data.creators.replacement);
+        content = nodes[i].nodeValue.replace(data.creators.regex, data.creators.replacement);
+
+        //Mods
+        content = content.replace(data.mods.regex, data.mods.replacement);
 
         //Blacklist
         for (var key in data.blacklist.regex){
             if(data.blacklist.regex.hasOwnProperty(key)){
-                content = content.replace(new RegExp(data.blacklist.regex[key], "gi"), data.blacklist.replacement[key]);
+                content = content.replace(data.blacklist.regex[key], data.blacklist.replacement[key]);
             }
         }
+
+        //If changed, replace node
         if (content !== nodes[i].nodeValue) {
+            /*var replacement = document.createTextNode(content);
+            nodes[i].parentNode.replaceChild(replacement, nodes[i]);*/
             var replacement = document.createElement("span");
             replacement.innerHTML = content;
             nodes[i].parentNode.replaceChild(replacement, nodes[i]);
+
+            addOnClick(replacement.parentNode);
         }
     }
     callback();
@@ -218,6 +234,10 @@ function grep(elems, callback, inv) {
     return ret;
 }
 
+function refreshBlacklist(){
+    chrome.runtime.sendMessage({get: "refresh"}, function(response){});
+}
+
 /*****
  Main
 *****/
@@ -229,7 +249,7 @@ chrome.runtime.sendMessage({get: "settings"}, function(response){
     if(response.allowedToRun){
 
         //Insert our bar with default content
-        document.getElementsByTagName("body")[0].innerHTML = '\
+        document.body.insertAdjacentHTML("afterbegin", '\
                 <div id="ggdc-bar-spacer" style="display: none;">\
                 </div>\
                 <div id="ggdc-bar" style="display: none;">\
@@ -243,7 +263,22 @@ chrome.runtime.sendMessage({get: "settings"}, function(response){
                     <div id="ggdc-bar-content">\
                         There\'s nothing here! Hover over highlighted names below and click on "More info" for details about them.\
                     </div>\
-                </div>' + document.getElementsByTagName("body")[0].innerHTML;
+                </div>');
+        /*document.getElementsByTagName("body")[0].innerHTML = '\
+                <div id="ggdc-bar-spacer" style="display: none;">\
+                </div>\
+                <div id="ggdc-bar" style="display: none;">\
+                    <div id="ggdc-bar-head">\
+                        <span id="ggdc-bar-tips" class="ggdc-bar-tips">Tips?</span>\
+                        <span id="ggdc-bar-help" class="ggdc-bar-help">Help&Support</span>\
+                        <span id="ggdc-bar-toggle" class="ggdc-bar-toggle">Show/Hide</span>\
+                        <span id="ggdc-bar-rescan" class="ggdc-bar-rescan"><abbr title="Useful if you loaded more content (like RES\'s \'Never Ending Reddit\')"">Rescan Page</abbr></span>\
+                        <span class="ggdc-bar-head-title"><a href="http://www.reddit.com/r/dogemarket">/r/DogeMarket</a> Helper! By <a href="http://www.reddit.com/user/GusGold/">/u/GusGold</a>.</span>\
+                    </div>\
+                    <div id="ggdc-bar-content">\
+                        There\'s nothing here! Hover over highlighted names below and click on "More info" for details about them.\
+                    </div>\
+                </div>' + document.getElementsByTagName("body")[0].innerHTML;*/
 
         //Display if our window is too small
         window.onresize = function(){
@@ -304,7 +339,7 @@ chrome.runtime.sendMessage({get: "settings"}, function(response){
         chrome.runtime.sendMessage({get: "creators"}, function(response) {
 
             data.creators.entries = response.entries;
-            data.creators.regex = response.regex;
+            data.creators.regex = new RegExp(response.regex, "gi");
             data.creators.replacement = response.replacement;
 
             //gets mod info from background.js
@@ -312,10 +347,10 @@ chrome.runtime.sendMessage({get: "settings"}, function(response){
 
                 if(response.populated){
                     data.mods.entries = response.entries;
-                    data.mods.regex = response.regex;
+                    data.mods.regex = new RegExp(response.regex, "gi");
                     data.mods.replacement = response.replacement;
                 } else {
-                    errors.push("could not get list of moderators");
+                    errors.push(response.reason);
                 }
 
                 //gets blacklist info from background.js
@@ -323,10 +358,14 @@ chrome.runtime.sendMessage({get: "settings"}, function(response){
                     
                     if(response.populated){
                         data.blacklist.entries = response.entries;
-                        data.blacklist.regex = response.regex;
+                        for (var key in response.regex){
+                            if(response.regex.hasOwnProperty(key)){
+                                data.blacklist.regex[key] = new RegExp(response.regex[key], "gi");
+                            }
+                        }
                         data.blacklist.replacement = response.replacement;
                     } else {
-                        errors.push("could not get blacklist information");
+                        errors.push(response.reason);
                     }
 
                     showErrors();
@@ -334,11 +373,11 @@ chrome.runtime.sendMessage({get: "settings"}, function(response){
                     highlighter_js();
                     
                     //Lazy way to check if files included
-                    // try {
+                    try {
                         comments_js();
-                    /*} catch (error) {
+                    } catch (error) {
                         console.warn(error);
-                    }*/
+                    }
                     try {
                         messages_js();
                     } catch (error) {
